@@ -16,7 +16,12 @@ export const AuthProvider = ({ children }) => {
         const res = await api.get("/auth/me");
         if (mounted) setUser(res.data.user);
       } catch (error) {
-        if (mounted) setUser(null);
+        if (mounted) {
+          setUser(null);
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("accessToken");
+          }
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -32,12 +37,18 @@ export const AuthProvider = ({ children }) => {
       password,
       role,
     });
+    if (res.data.accessToken) {
+      localStorage.setItem("accessToken", res.data.accessToken);
+    }
     setUser(res.data.user);
     return res.data;
   };
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
+    if (res.data.accessToken) {
+      localStorage.setItem("accessToken", res.data.accessToken);
+    }
     setUser(res.data.user);
     return res.data;
   };
@@ -49,6 +60,9 @@ export const AuthProvider = ({ children }) => {
       console.error("Logout error:", error);
     } finally {
       setUser(null);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+      }
     }
   };
 
@@ -62,6 +76,9 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data.user);
     } catch {
       setUser(null);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+      }
     }
   };
 
