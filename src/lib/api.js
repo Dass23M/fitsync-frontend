@@ -10,15 +10,24 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data?.accessToken) {
+      localStorage.setItem("accessToken", response.data.accessToken);
+    }
+    return response;
+  },
   async (error) => {
     const original = error.config;
 
@@ -30,7 +39,7 @@ api.interceptors.response.use(
     ) {
       original._retry = true;
       try {
-        await axios.post(
+        const res = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
           {},
           {
@@ -38,9 +47,13 @@ api.interceptors.response.use(
             headers: { "Content-Type": "application/json" },
           }
         );
+        if (res.data?.accessToken) {
+          localStorage.setItem("accessToken", res.data.accessToken);
+        }
         return api(original);
       } catch (refreshError) {
         if (typeof window !== "undefined") {
+          localStorage.removeItem("accessToken");
           window.location.href = "/auth/login";
         }
         return Promise.reject(refreshError);
