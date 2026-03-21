@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Input from "@/components/ui/Input";
 import useAuth from "@/hooks/useAuth";
 
 const passwordStrength = (password) => {
@@ -37,6 +36,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [step, setStep] = useState(1);
+  const [success, setSuccess] = useState(false);
 
   const strength = passwordStrength(form.password);
 
@@ -82,7 +82,10 @@ export default function RegisterPage() {
     try {
       setLoading(true);
       await register(form.name, form.email, form.password, form.role);
-      router.push("/main/dashboard");
+      setSuccess(true);
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 2000);
     } catch (error) {
       setServerError(
         error.response?.data?.message ||
@@ -92,6 +95,88 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="flex items-center px-4 sm:px-8 py-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-sm font-bold">FS</span>
+            </div>
+            <span className="text-base font-bold text-gray-900">FitSync</span>
+          </Link>
+        </div>
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="w-full max-w-md text-center">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 sm:p-10">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-2xl mb-5">
+                <svg
+                  className="w-8 h-8 text-emerald-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Account created!
+              </h2>
+              <p className="text-sm text-gray-500 mb-2">
+                Welcome to FitSync,{" "}
+                <span className="font-semibold text-gray-700">
+                  {form.name.split(" ")[0]}
+                </span>
+                !
+              </p>
+              <p className="text-sm text-gray-400 mb-6">
+                Redirecting you to sign in...
+              </p>
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <div
+                  className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <div
+                  className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <div
+                  className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
+              </div>
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center justify-center gap-2 w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl transition-colors"
+              >
+                Sign in now
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -175,8 +260,6 @@ export default function RegisterPage() {
 
             {step === 1 && (
               <div className="flex flex-col gap-5">
-
-                {/* Role selector — step 1 */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-gray-700">
                     I want to join as
@@ -238,7 +321,6 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Name */}
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="name" className="text-sm font-semibold text-gray-700">
                     Full Name
@@ -272,7 +354,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Email */}
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="email" className="text-sm font-semibold text-gray-700">
                     Email address
@@ -322,7 +403,6 @@ export default function RegisterPage() {
             {step === 2 && (
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-                {/* Summary */}
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
                   <div className="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-xs font-bold text-indigo-600">
@@ -342,7 +422,6 @@ export default function RegisterPage() {
                   </button>
                 </div>
 
-                {/* Password */}
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="password" className="text-sm font-semibold text-gray-700">
                     Create password
@@ -383,7 +462,6 @@ export default function RegisterPage() {
                     </button>
                   </div>
 
-                  {/* Password strength */}
                   {form.password && (
                     <div className="flex flex-col gap-1.5 mt-1">
                       <div className="flex gap-1">
@@ -417,7 +495,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Confirm password */}
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700">
                     Confirm password
@@ -478,7 +555,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Buttons */}
                 <div className="flex gap-3 mt-1">
                   <button
                     type="button"
