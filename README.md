@@ -1,36 +1,151 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# FitSync Frontend
 
-## Getting Started
+A production-ready social fitness tracking web application. Built with Next.js 16, Tailwind CSS and Socket.io for real-time updates.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Live App
+```
+https://fitsync-frontend-bwzfhjfbx-methmals-projects.vercel.app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Demo Accounts
+```
+Athlete:  athlete@demo.com  /  demo123
+Coach:    coach@demo.com    /  demo123
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework** — Next.js 16 (App Router)
+- **Styling** — Tailwind CSS v3
+- **HTTP Client** — Axios with interceptors
+- **Real-time** — Socket.io Client
+- **Charts** — Recharts
+- **Font** — Geist
+- **Deployment** — Vercel
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- JWT authentication with automatic token refresh
+- Role-based UI — separate dashboards for athletes and coaches
+- Workout logging with dynamic exercise builder
+- Search and filter workouts by muscle group, difficulty and duration
+- Coach workout plan creation and management
+- Real-time activity feed powered by Socket.io
+- Progress charts — weekly volume bar chart and progress line chart
+- Follow / unfollow other athletes and coaches
+- User search with role filter
+- Profile pages with avatar upload
+- Fully mobile responsive
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pages
+```
+/                          — Landing page
+/auth/login                — Login
+/auth/register             — Register (2-step flow)
+/main/dashboard            — Dashboard (role-aware)
+/main/workouts             — Workouts list + search
+/main/workouts/create      — Create workout
+/main/workouts/[id]        — Workout detail + edit
+/main/plans                — Plans list + search
+/main/plans/create         — Create plan (coach only)
+/main/plans/[id]           — Plan detail + edit
+/main/profile/[id]         — User profile
+/main/search               — Find people
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Local Setup
 
-## Deploy on Vercel
+### Prerequisites
+- Node.js 18+
+- FitSync backend running on port 5000
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Installation
+```bash
+# Clone the repo
+git clone https://github.com/YOUR_USERNAME/fitsync-frontend.git
+cd fitsync-frontend
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Install dependencies
+npm install
+
+# Create .env.local file
+cp .env.example .env.local
+# Fill in your environment variables
+
+# Start development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+### Environment Variables
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+```
+
+For production:
+```env
+NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app/api
+NEXT_PUBLIC_SOCKET_URL=https://your-backend.up.railway.app
+```
+
+## Project Structure
+```
+fitsync-frontend/
+└── src/
+    ├── app/
+    │   ├── page.js              — Landing page
+    │   ├── layout.js            — Root layout
+    │   ├── globals.css          — Global styles
+    │   ├── auth/
+    │   │   ├── login/page.js
+    │   │   └── register/page.js
+    │   └── main/
+    │       ├── layout.js        — Protected layout
+    │       ├── dashboard/
+    │       ├── workouts/
+    │       ├── plans/
+    │       ├── profile/
+    │       └── search/
+    ├── components/
+    │   ├── ui/                  — Button, Input, Avatar, Badge
+    │   ├── layout/              — Navbar, Sidebar
+    │   ├── workout/             — WorkoutCard, WorkoutForm, Filters
+    │   ├── plan/                — PlanCard, PlanForm
+    │   ├── dashboard/           — ActivityFeed, StatsChart
+    │   └── profile/             — ProfileHeader, FollowList
+    ├── context/
+    │   ├── AuthContext.js       — Global auth state
+    │   └── SocketContext.js     — Socket.io connection
+    ├── hooks/
+    │   ├── useAuth.js
+    │   └── useSocket.js
+    └── lib/
+        ├── api.js               — Axios instance + interceptors
+        └── utils.js             — Helper functions
+```
+
+## Screenshots
+
+### Landing Page
+A modern landing page with hero section, feature cards, role selector and CTA.
+
+### Dashboard
+Role-aware dashboard showing stats, activity feed and progress charts.
+
+### Workouts
+Full CRUD with search, filters, image uploads and exercise tracking.
+
+### Plans
+Coach-created plans with workout collections and subscriber management.
+
+## Deployment
+
+Deployed on Vercel with automatic deploys on every push to main.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com)
+
+## Backend Repository
+
+Dasun Methmal
