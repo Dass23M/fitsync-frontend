@@ -1,20 +1,34 @@
 import axios from "axios";
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+const getStoredToken = () => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("accessToken");
+};
+
+const setStoredToken = (token) => {
+  if (typeof window === "undefined") return;
+  if (token) {
+    localStorage.setItem("accessToken", token);
+  } else {
+    localStorage.removeItem("accessToken");
+  }
+};
+
 api.interceptors.request.use(
   (config) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = getStoredToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -24,36 +38,45 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     if (response.data?.accessToken) {
-      localStorage.setItem("accessToken", response.data.accessToken);
+      setStoredToken(response.data.accessToken);
     }
     return response;
   },
   async (error) => {
     const original = error.config;
 
+    const isAuthEndpoint =
+      original.url?.includes("/auth/refresh") ||
+      original.url?.includes("/auth/login") ||
+      original.url?.includes("/auth/register");
+
     if (
       error.response?.status === 401 &&
       !original._retry &&
-      !original.url?.includes("/auth/refresh") &&
-      !original.url?.includes("/auth/me")
+      !isAuthEndpoint
     ) {
       original._retry = true;
+
       try {
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+        const refreshRes = await axios.post(
+          `${BASE_URL}/auth/refresh`,
           {},
           {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
           }
         );
-        if (res.data?.accessToken) {
-          localStorage.setItem("accessToken", res.data.accessToken);
+
+        const newToken = refreshRes.data?.accessToken;
+        if (newToken) {
+          setStoredToken(newToken);
+          original.headers.Authorization = `Bearer ${newToken}`;
         }
+
         return api(original);
       } catch (refreshError) {
+        setStoredToken(null);
         if (typeof window !== "undefined") {
-          localStorage.removeItem("accessToken");
           window.location.href = "/auth/login";
         }
         return Promise.reject(refreshError);
